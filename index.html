@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>洋蔥排列｜雙人線上對弈測試</title><style>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>洋蔥排列｜雙人線上整合測試版</title><style>
 :root{
   --bg:#f4f6f8;--panel:#fff;--text:#1f2937;--muted:#6b7280;--border:#d7dee7;
   --green:#16a34a;--green-bg:#ecfdf3;
@@ -76,14 +76,14 @@ button{font:inherit}
   .num{width:66px;height:66px;font-size:27px}
 }
 
-.setup{max-width:660px;margin:18px auto}.field{margin:12px 0}.field label{display:block;font-size:14px;font-weight:700;margin-bottom:5px}.field input{width:100%;font:inherit;font-size:16px;padding:10px;border:1px solid #9aaac0;border-radius:9px;min-height:44px}.notice{border:1px solid #bed3eb;background:#eff6ff;padding:12px;border-radius:9px;margin:10px 0;line-height:1.6}.err{border:1px solid #f4acac;background:#fff1f2;color:#991b1b;padding:10px;border-radius:8px;white-space:pre-wrap;margin:10px 0}.online-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.online-header strong{font-size:17px}.pill{padding:5px 9px;border-radius:20px;background:#e2e8f0;font-size:13px}.hist-message{font-size:14px;color:#526174;padding:12px}.num:disabled{cursor:default}.hidden{display:none!important}#waitPanel{max-width:640px;margin:10px auto}.smallhelp{font-size:13px;color:#607088;line-height:1.6}.ctrl{min-height:44px}.num:focus-visible,.ctrl:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.setup{max-width:660px;margin:18px auto}.field{margin:12px 0}.field label{display:block;font-size:14px;font-weight:700;margin-bottom:5px}.field input{width:100%;font:inherit;font-size:16px;padding:10px;border:1px solid #9aaac0;border-radius:9px;min-height:44px}.notice{border:1px solid #bed3eb;background:#eff6ff;padding:12px;border-radius:9px;margin:10px 0;line-height:1.6}.err{border:1px solid #f4acac;background:#fff1f2;color:#991b1b;padding:10px;border-radius:8px;white-space:pre-wrap;margin:10px 0}.online-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.online-header strong{font-size:17px}.pill{padding:5px 9px;border-radius:20px;background:#e2e8f0;font-size:13px}.hist-message{font-size:14px;color:#526174;padding:12px}.num:disabled{cursor:default}.hidden{display:none!important}#waitPanel{max-width:640px;margin:10px auto}.smallhelp{font-size:13px;color:#607088;line-height:1.6}.ctrl{min-height:44px}.round-box{border:1px solid #d7dee7;border-radius:10px;padding:12px;margin:12px 0;background:#f8fafc}.round-box h3{margin:0 0 8px;font-size:17px}.round-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.round-row select{min-height:44px;font:inherit;border:1px solid #94a3b8;border-radius:8px;padding:6px;background:white}.round-status{margin:8px 0;font-size:14px;line-height:1.5}.ctrl:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}.ctrl.leave{margin-left:auto;border-color:#e5a4a4;color:#9f1239;background:#fff5f5}.notice.closed{border-color:#e8b3b3;background:#fff3f3}
 </style></head><body>
-<section class="panel setup" id="setup"><h1>洋蔥排列｜雙人線上對弈</h1><div class="notice">本版可讓兩位玩家自動配對並真正輪流拿數字。先測試走步與勝負；房主重開局與完整歷史紀錄尚未加入。</div><div class="field"><label for="url">Supabase Project URL</label><input id="url" type="url" spellcheck="false" autocomplete="off" value="https://idzytzwderyipowgstpk.supabase.co"></div><div class="field"><label for="key">Publishable key（sb_publishable_ 開頭）</label><input id="key" spellcheck="false" autocomplete="off" placeholder="貼上公開 Publishable key"></div><p class="smallhelp">只能使用 Publishable key，切勿貼入資料庫密碼、secret 或 service_role 金鑰。連線設定保存在本機瀏覽器。</p><button class="ctrl primary" id="connect">連線並準備登入</button></section>
+<section class="panel setup" id="setup"><h1>洋蔥排列｜雙人線上對弈</h1><div class="notice">本版可讓兩位玩家自動配對並真正輪流拿數字。已支援自動配對、輪流走步、房主重開局及離開房間重新配對。完整走步歷史與斷線偵測仍待加入。</div><div class="field"><label for="url">Supabase Project URL</label><input id="url" type="url" spellcheck="false" autocomplete="off" value="https://idzytzwderyipowgstpk.supabase.co"></div><div class="field"><label for="key">Publishable key（sb_publishable_ 開頭）</label><input id="key" spellcheck="false" autocomplete="off" placeholder="貼上公開 Publishable key"></div><p class="smallhelp">只能使用 Publishable key，切勿貼入資料庫密碼、secret 或 service_role 金鑰。連線設定保存在本機瀏覽器。</p><button class="ctrl primary" id="connect">連線並準備登入</button></section>
 <section class="panel setup hidden" id="lobby"><h2>尋找對手</h2><div class="field"><label for="name">你的遊戲暱稱（1–20字）</label><input id="name" maxlength="20" autocomplete="nickname" placeholder="例如：小明"></div><div class="controls" style="justify-content:flex-start"><button class="ctrl primary" id="start">開始尋找對手</button><button class="ctrl" id="cancel" hidden>取消等待</button></div><div class="notice" id="lobbyStatus" role="status">已連線，請開始尋找對手。</div></section>
-<div class="app hidden" id="game"><div class="topbar"><div class="title">洋蔥排列｜線上對弈</div><div class="pill" id="myRole"></div></div><div class="online-header"><strong id="players"></strong><span class="pill" id="conn">每 2 秒更新棋盤</span></div>
+<div class="app hidden" id="game"><div class="topbar"><div class="title">洋蔥排列｜線上對弈</div><div class="pill" id="myRole"></div></div><div class="online-header"><strong id="players"></strong><span class="pill" id="conn">每 2 秒更新棋盤</span><button class="ctrl leave" id="leaveRoom">離開房間</button></div>
 <div class="layout"><main class="panel game"><div><div class="status"><div class="statusbox"><div class="big" id="turn"></div><div class="small" id="starter"></div></div><div class="statusbox"><div id="position" style="font-weight:850;font-size:14px">目前可拿數字</div><div class="small" id="visible"></div></div></div><div class="legend"><span><i class="sw g"></i>可拿：綠框</span><span><i class="sw r"></i>玩家 A 選取：紅框</span><span><i class="sw b"></i>玩家 B 選取：藍框</span><span><i class="sw x"></i>被遮住／已拿走</span></div><div class="board" id="board"></div></div>
-<div><div class="actionbar"><button class="ctrl primary" id="take" disabled>確認拿走</button><button class="ctrl" id="clear" disabled>取消選取</button><div class="seltext" id="seltext">尚未選取</div></div><div class="result" id="result" role="status" aria-live="polite"></div><div class="rules">每回合可拿走任意非空子集的目前可見數。拿走後立即重新判定可見數；拿到最後一個數者獲勝。</div><div class="smallhelp">測試版目前固定 n=5。重新整理會以同一匿名身份恢復對局；重開新局功能待下一階段加入。</div></div></main>
-<aside class="panel history-panel"><div class="history-title">對局資訊</div><div id="history" class="hist-message">本階段以資料庫正式棋盤為準。完整走步歷史及房主重新開局功能，將在雙手機走步驗證通過後加入。</div><div id="gameInfo" class="hist-message"></div></aside></div></div>
+<div><div class="actionbar"><button class="ctrl primary" id="take" disabled>確認拿走</button><button class="ctrl" id="clear" disabled>取消選取</button><div class="seltext" id="seltext">尚未選取</div></div><div class="result" id="result" role="status" aria-live="polite"></div><div class="rules">每回合可拿走任意非空子集的目前可見數。拿走後立即重新判定可見數；拿到最後一個數者獲勝。</div><div class="round-box" id="roundPanel"><h3>房主／重新開局</h3><div id="hostControls" class="hidden"><div class="round-row"><label for="roundN">新局規模 n：</label><select id="roundN"><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option><option value="6">6</option></select></div><div class="round-row" style="margin-top:8px"><button class="ctrl primary" id="newRound">新排列</button><button class="ctrl" id="sameRound">同排列重玩</button></div></div><div id="roundPending" class="hidden"><div class="round-status" id="pendingText"></div><div class="round-row"><button class="ctrl primary hidden" id="acceptRound">同意重新開始</button><button class="ctrl hidden" id="rejectRound">拒絕</button><button class="ctrl hidden" id="cancelRound">取消請求</button></div></div><p id="roundHelp" class="smallhelp"></p></div><div class="smallhelp">重新整理會恢復未關閉的房間；主動離開則關閉整個房間。每局自動交換先手。</div></div></main>
+<aside class="panel history-panel"><div class="history-title">對局資訊</div><div id="history" class="hist-message">本階段以資料庫正式棋盤為準。完整走步歷史尚未加入；本版可測試房主重新開局。</div><div id="gameInfo" class="hist-message"></div></aside></div></div>
 <div id="error" class="err setup hidden" role="alert"></div>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -92,8 +92,8 @@ const URL_KEY='onion-test-url', KEY_KEY='onion-test-publishable', NAME_KEY='onio
 $('url').value=localStorage.getItem(URL_KEY)||$('url').value;
 $('key').value=localStorage.getItem(KEY_KEY)||'';
 $('name').value=localStorage.getItem(NAME_KEY)||'';
-let sb=null, polling=null, waitingTimer=null, pollingBusy=false, waitingBusy=false, active=false, requestPending=false;
-let room=null, selected=0;
+let sb=null, polling=null, waitingTimer=null, pollingBusy=false, waitingBusy=false, active=false, requestPending=false, leaving=false, cancelling=false;
+let room=null, selected=0, roundPending=false, lastRoundKey=null;
 function error(e){$('error').textContent='發生問題：'+(e?.message||String(e));$('error').classList.remove('hidden');}
 function clearError(){$('error').textContent='';$('error').classList.add('hidden');}
 async function rpc(n,args={}){const {data,error:e}=await sb.rpc(n,args);if(e)throw e;return data;}
@@ -102,25 +102,131 @@ function vals(mask){return room.permutation.filter((_,i)=>!!(mask&(1<<i)));}
 // 直接沿用雙人同機版的洋蔥排列可見數判斷。
 function visMask(mask){let max=-Infinity,out=0;for(let i=0;i<room.n;i++){if(!(mask&(1<<i)))continue;if(room.permutation[i]>max){max=room.permutation[i];out|=1<<i}}return out;}
 function roleName(role){return role==='A'?room.name_a:room.name_b;}
-function render(){if(!room)return;const v=visMask(room.alive_mask), myTurn=room.current_turn===room.role&&room.game_status==='playing';
+function render(){if(!room)return;const v=visMask(room.alive_mask), waitingApproval=!!room.pending_action, myTurn=room.current_turn===room.role&&room.game_status==='playing'&&!waitingApproval;
 $('players').textContent=`${room.name_a}（A） vs ${room.name_b}（B）`;
 $('myRole').textContent=`你是玩家 ${room.role}${room.role==='A'?'（房主）':''}`;
 $('board').replaceChildren();
 for(let i=0;i<room.n;i++){const bit=1<<i,b=document.createElement('button');b.type='button';b.className='num';b.textContent=room.permutation[i];const alive=!!(room.alive_mask&bit),available=!!(v&bit),picked=!!(selected&bit);if(!alive)b.classList.add('removed');else if(picked)b.classList.add(room.role==='A'?'selected-a':'selected-b');else if(available)b.classList.add('available');else b.classList.add('blocked');b.disabled=!alive||!available||!myTurn||requestPending;b.setAttribute('aria-label',`數字 ${room.permutation[i]}`);if(!b.disabled)b.addEventListener('click',()=>{selected^=bit;render()});$('board').appendChild(b);}
-$('turn').textContent=room.game_status==='finished'?'本局結束':myTurn?'輪到你拿數字':`等待 ${roleName(room.current_turn)}（${room.current_turn}）走步`;
+$('turn').textContent=waitingApproval?'等待重新開局確認':room.game_status==='finished'?'本局結束':myTurn?'輪到你拿數字':`等待 ${roleName(room.current_turn)}（${room.current_turn}）走步`;
 $('starter').textContent=`第 ${room.round_number} 局｜目前 n=${room.n}`;
 $('visible').textContent=room.game_status==='finished'?'':'目前可拿：'+(vals(v).join('、')||'無');
 $('position').textContent=room.game_status==='finished'?'本局已結束':'目前可拿數字';
 $('seltext').textContent=selected?'已選：'+vals(selected).join('、'):'尚未選取';
-$('take').disabled=!myTurn||!selected||!!(selected&~v)||requestPending;$('clear').disabled=!selected||requestPending;
+$('take').disabled=!myTurn||!selected||!!(selected&~v)||requestPending||leaving;$('clear').disabled=!selected||requestPending||leaving;$('leaveRoom').disabled=leaving;
 const done=room.game_status==='finished';$('result').className=done?'result show '+(room.winner===room.role?'win':'lose'):'result';$('result').textContent=done?`${roleName(room.winner)}（${room.winner}）獲勝！`:'';
-$('gameInfo').textContent=`剩餘數字：${vals(room.alive_mask).join('、')||'無'}｜棋盤版本：${room.version}`;}
-function showRoom(r){if(r?.status!=='matched')return;const changed=!room||room.room_id!==r.room_id||room.version!==r.version||room.round_number!==r.round_number;if(changed)selected=0;room=r;active=false;$('setup').classList.add('hidden');$('lobby').classList.add('hidden');$('game').classList.remove('hidden');render();}
-async function refresh(){if(!sb||pollingBusy)return;pollingBusy=true;try{const r=await rpc('match_status');if(r?.status==='matched'){showRoom(r);if(waitingTimer){clearInterval(waitingTimer);waitingTimer=null;}}else if(active){$('lobbyStatus').textContent=r?.status==='waiting'?'正在等待另一位玩家加入…':'等待資格更新中…';}else if(!room){$('lobbyStatus').textContent='請輸入暱稱並開始尋找對手。';}}catch(e){error(e)}finally{pollingBusy=false}}
-async function keepWaiting(){if(!active||waitingBusy)return;waitingBusy=true;try{const r=await rpc('find_match',{p_nickname:$('name').value.trim()});if(r?.status==='matched'){active=false;const detail=await rpc('match_status');showRoom(detail);}else{$('lobbyStatus').textContent='正在等待另一位玩家加入…';}}catch(e){error(e)}finally{waitingBusy=false}}
+$('gameInfo').textContent=`剩餘數字：${vals(room.alive_mask).join('、')||'無'}｜棋盤版本：${room.version}`;renderRound();}
+function renderRound(){
+ if(!room)return;
+ const isHost=room.role==='A', pending=!!room.pending_action, busy=roundPending||requestPending||leaving;
+ $('hostControls').classList.toggle('hidden',!isHost||pending);
+ $('roundPending').classList.toggle('hidden',!pending);
+ if(!pending){
+   const roundKey=room.room_id+':'+room.round_number;
+   if(lastRoundKey!==roundKey){$('roundN').value=String(room.n);lastRoundKey=roundKey;}
+   $('roundN').disabled=busy;
+   $('newRound').disabled=busy;
+   $('sameRound').disabled=busy;
+   $('roundHelp').textContent=isHost?(room.game_status==='finished'?'本局已結束：可直接開新局。':'對局進行中：提出請求後暫停走步，等待 B 同意。'):'你是玩家 B，等待房主提出重開請求。';
+ }else{
+   const action=room.pending_action==='new_random'?`新排列（n=${room.pending_n}）`:'同排列重玩';
+   $('pendingText').textContent=isHost?`已提出「${action}」，正在等待 ${room.name_b} 同意。`:`${room.name_a} 提出「${action}」，是否同意？`;
+   $('acceptRound').classList.toggle('hidden',isHost);
+   $('rejectRound').classList.toggle('hidden',isHost);
+   $('cancelRound').classList.toggle('hidden',!isHost);
+   for(const id of ['acceptRound','rejectRound','cancelRound'])$(id).disabled=busy;
+   $('roundHelp').textContent='等待回應期間，雙方暫停走步。';
+ }
+}
+async function roundAction(fn,args){
+ if(!room||roundPending)return;
+ clearError();roundPending=true;render();
+ try{await rpc(fn,args);await refresh();}
+ catch(e){error(e);await refresh();}
+ finally{roundPending=false;if(room)render();}
+}
+function showLobby(message,closed=false){
+  selected=0;room=null;active=false;lastRoundKey=null;requestPending=false;
+  clearInterval(waitingTimer);waitingTimer=null;
+  $('setup').classList.add('hidden');$('game').classList.add('hidden');$('lobby').classList.remove('hidden');
+  $('start').disabled=false;$('cancel').hidden=true;$('cancel').disabled=false;
+  $('lobbyStatus').textContent=message;
+  $('lobbyStatus').classList.toggle('closed',closed);
+}
+function showRoom(r){
+  if(r?.status!=='matched')return;
+  const changed=!room||room.room_id!==r.room_id||room.version!==r.version||room.round_number!==r.round_number;
+  if(changed)selected=0;
+  room=r;active=false;
+  clearInterval(waitingTimer);waitingTimer=null;
+  $('setup').classList.add('hidden');$('lobby').classList.add('hidden');$('game').classList.remove('hidden');
+  render();
+}
+async function refresh(){
+  if(!sb||pollingBusy||leaving||cancelling)return;
+  pollingBusy=true;
+  try{
+    const r=await rpc('match_status');
+    if(r?.status==='matched'){
+      showRoom(r);
+    }else if(room){
+      // 曾在房間內，現在查不到：表示房間已關閉；不是刷新頁面。
+      showLobby('這個房間已關閉（可能是對手主動離開）。你可以重新尋找對手。',true);
+    }else if(active){
+      $('lobbyStatus').textContent=r?.status==='waiting'?'正在等待另一位玩家加入…':'等待資格更新中…';
+    }else if(r?.status==='waiting'){
+      // 重整頁面後可以再按開始尋找對手，避免遺留等待畫面。
+      $('lobbyStatus').textContent='上次等待尚有短暫有效期限，可按「開始尋找對手」繼續。';
+    }
+  }catch(e){error(e)}finally{pollingBusy=false}
+}
+async function keepWaiting(){
+  if(!active||waitingBusy||leaving||cancelling)return;
+  waitingBusy=true;
+  try{
+    const r=await rpc('find_match',{p_nickname:$('name').value.trim()});
+    if(r?.status==='matched'){
+      active=false;
+      const detail=await rpc('match_status');
+      if(detail?.status==='matched')showRoom(detail);
+    }else{
+      $('lobbyStatus').textContent='正在等待另一位玩家加入…';
+    }
+  }catch(e){error(e)}finally{waitingBusy=false}
+}
 $('connect').addEventListener('click',async()=>{clearError();$('connect').disabled=true;try{const u=$('url').value.trim().replace(/\/$/,'');const k=$('key').value.trim();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(u))throw Error('請輸入正確的 Project URL');if(!k.startsWith('sb_publishable_'))throw Error('請使用 Publishable key，不可使用秘密金鑰');localStorage.setItem(URL_KEY,u);localStorage.setItem(KEY_KEY,k);sb=createClient(u,k,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});const {data:{session},error:e}=await sb.auth.getSession();if(e)throw e;if(!session){const login=await sb.auth.signInAnonymously();if(login.error)throw login.error;}$('setup').classList.add('hidden');$('lobby').classList.remove('hidden');await refresh();polling=setInterval(refresh,2000);}catch(e){error(e);$('connect').disabled=false;}});
-$('start').addEventListener('click',async()=>{clearError();const nick=$('name').value.trim();if(!nick||[...nick].length>20){error('暱稱必須是 1～20 字');return;}localStorage.setItem(NAME_KEY,nick);active=true;$('start').disabled=true;$('cancel').hidden=false;await keepWaiting();if(active){waitingTimer=setInterval(keepWaiting,8000);}});
-$('cancel').addEventListener('click',async()=>{clearError();active=false;clearInterval(waitingTimer);waitingTimer=null;$('cancel').disabled=true;try{await rpc('cancel_wait');$('lobbyStatus').textContent='已取消等待。';$('start').disabled=false;$('cancel').hidden=true;await refresh();}catch(e){error(e)}finally{$('cancel').disabled=false}});
-$('take').addEventListener('click',async()=>{if(!room||!selected||requestPending)return;clearError();requestPending=true;render();try{const response=await rpc('submit_move',{p_room_id:room.room_id,p_move_mask:selected,p_expected_version:room.version});if(response?.success){await refresh();}else throw Error('走步未被接受');}catch(e){error(e);await refresh();}finally{requestPending=false;render();}});
+$('start').addEventListener('click',async()=>{if(active||leaving||cancelling)return;clearError();$('lobbyStatus').classList.remove('closed');const nick=$('name').value.trim();if(!nick||[...nick].length>20){error('暱稱必須是 1～20 字');return;}localStorage.setItem(NAME_KEY,nick);active=true;$('start').disabled=true;$('cancel').hidden=false;await keepWaiting();if(active){waitingTimer=setInterval(keepWaiting,8000);}});
+$('cancel').addEventListener('click',async()=>{
+  if(cancelling)return;
+  clearError();cancelling=true;active=false;
+  clearInterval(waitingTimer);waitingTimer=null;
+  $('cancel').disabled=true;$('start').disabled=true;
+  try{
+    await rpc('cancel_wait');
+    const state=await rpc('match_status');
+    if(state?.status==='matched'){
+      showRoom(state);
+      $('lobbyStatus').textContent='配對已完成，不能取消等待；若要退出請使用離開房間。';
+    }else{
+      showLobby('已取消等待，可以再次尋找對手。');
+    }
+  }catch(e){error(e)}finally{cancelling=false;$('cancel').disabled=false}
+});
+$('leaveRoom').addEventListener('click',async()=>{
+  if(!room||leaving||roundPending||requestPending)return;
+  const originalRoomId=room.room_id;
+  if(!confirm('確定要離開房間嗎？\n整個房間將關閉，對手也無法繼續這局，雙方可以重新配對。'))return;
+  clearError();leaving=true;render();
+  try{
+    await rpc('leave_room',{p_room_id:originalRoomId});
+    showLobby('你已離開房間。原房間已關閉，可以重新尋找對手。',true);
+  }catch(e){error(e);await refresh()}
+  finally{leaving=false;if(room)render()}
+});
+$('take').addEventListener('click',async()=>{if(!room||!selected||requestPending)return;clearError();requestPending=true;render();try{const response=await rpc('submit_move',{p_room_id:room.room_id,p_move_mask:selected,p_expected_version:room.version});if(response?.success){await refresh();}else throw Error('走步未被接受');}catch(e){error(e);await refresh();}finally{requestPending=false;if(room)render();}});
 $('clear').addEventListener('click',()=>{selected=0;render()});
+$('newRound').addEventListener('click',()=>roundAction('request_new_round',{p_action:'new_random',p_n:Number($('roundN').value)}));
+$('sameRound').addEventListener('click',()=>roundAction('request_new_round',{p_action:'replay_same',p_n:room.n}));
+$('acceptRound').addEventListener('click',()=>roundAction('respond_new_round',{p_request_id:room.pending_request_id,p_accept:true}));
+$('rejectRound').addEventListener('click',()=>roundAction('respond_new_round',{p_request_id:room.pending_request_id,p_accept:false}));
+$('cancelRound').addEventListener('click',()=>roundAction('cancel_round_request',{p_request_id:room.pending_request_id}));
 </script></body></html>
