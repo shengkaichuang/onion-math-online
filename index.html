@@ -78,7 +78,7 @@ button{font:inherit}
 
 .setup{max-width:660px;margin:18px auto}.field{margin:12px 0}.field label{display:block;font-size:14px;font-weight:700;margin-bottom:5px}.field input{width:100%;font:inherit;font-size:16px;padding:10px;border:1px solid #9aaac0;border-radius:9px;min-height:44px}.notice{border:1px solid #bed3eb;background:#eff6ff;padding:12px;border-radius:9px;margin:10px 0;line-height:1.6}.err{border:1px solid #f4acac;background:#fff1f2;color:#991b1b;padding:10px;border-radius:8px;white-space:pre-wrap;margin:10px 0}.online-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.online-header strong{font-size:17px}.pill{padding:5px 9px;border-radius:20px;background:#e2e8f0;font-size:13px}.hist-message{font-size:14px;color:#526174;padding:12px}.num:disabled{cursor:default}.hidden{display:none!important}#waitPanel{max-width:640px;margin:10px auto}.smallhelp{font-size:13px;color:#607088;line-height:1.6}.ctrl{min-height:44px}.round-box{border:1px solid #d7dee7;border-radius:10px;padding:12px;margin:12px 0;background:#f8fafc}.round-box h3{margin:0 0 8px;font-size:17px}.round-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.round-row select{min-height:44px;font:inherit;border:1px solid #94a3b8;border-radius:8px;padding:6px;background:white}.round-status{margin:8px 0;font-size:14px;line-height:1.5}.ctrl:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}.ctrl.leave{margin-left:auto;border-color:#e5a4a4;color:#9f1239;background:#fff5f5}.notice.closed{border-color:#e8b3b3;background:#fff3f3}
 </style></head><body>
-<section class="panel setup" id="setup"><h1>洋蔥排列｜雙人線上對弈</h1><div class="notice">本版可讓兩位玩家自動配對並真正輪流拿數字。已支援自動配對、輪流走步、房主重開局及離開房間重新配對。完整走步歷史與斷線偵測仍待加入。</div><div class="field"><label for="url">Supabase Project URL</label><input id="url" type="url" spellcheck="false" autocomplete="off" value="https://idzytzwderyipowgstpk.supabase.co"></div><div class="field"><label for="key">Publishable key（sb_publishable_ 開頭）</label><input id="key" spellcheck="false" autocomplete="off" placeholder="貼上公開 Publishable key"></div><p class="smallhelp">只能使用 Publishable key，切勿貼入資料庫密碼、secret 或 service_role 金鑰。連線設定保存在本機瀏覽器。</p><button class="ctrl primary" id="connect">連線並準備登入</button></section>
+<section class="panel setup" id="setup"><h1>洋蔥排列｜雙人線上對弈</h1><div class="notice" id="startupStatus" role="status">正在連線，請稍候…</div><p class="smallhelp">不需要帳號、電子郵件或房間代碼。連線成功後即可輸入暱稱尋找對手。</p></section>
 <section class="panel setup hidden" id="lobby"><h2>尋找對手</h2><div class="field"><label for="name">你的遊戲暱稱（1–20字）</label><input id="name" maxlength="20" autocomplete="nickname" placeholder="例如：小明"></div><div class="controls" style="justify-content:flex-start"><button class="ctrl primary" id="start">開始尋找對手</button><button class="ctrl" id="cancel" hidden>取消等待</button></div><div class="notice" id="lobbyStatus" role="status">已連線，請開始尋找對手。</div></section>
 <div class="app hidden" id="game"><div class="topbar"><div class="title">洋蔥排列｜線上對弈</div><div class="pill" id="myRole"></div></div><div class="online-header"><strong id="players"></strong><span class="pill" id="conn">每 2 秒更新棋盤</span><button class="ctrl leave" id="leaveRoom">離開房間</button></div>
 <div class="layout"><main class="panel game"><div><div class="status"><div class="statusbox"><div class="big" id="turn"></div><div class="small" id="starter"></div></div><div class="statusbox"><div id="position" style="font-weight:850;font-size:14px">目前可拿數字</div><div class="small" id="visible"></div></div></div><div class="legend"><span><i class="sw g"></i>可拿：綠框</span><span><i class="sw r"></i>玩家 A 選取：紅框</span><span><i class="sw b"></i>玩家 B 選取：藍框</span><span><i class="sw x"></i>被遮住／已拿走</span></div><div class="board" id="board"></div></div>
@@ -88,9 +88,11 @@ button{font:inherit}
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const $=id=>document.getElementById(id);
-const URL_KEY='onion-test-url', KEY_KEY='onion-test-publishable', NAME_KEY='onion-test-nickname';
-$('url').value=localStorage.getItem(URL_KEY)||$('url').value;
-$('key').value=localStorage.getItem(KEY_KEY)||'';
+// ===== 教師部署設定：只需在此貼上 Supabase 的公開 Publishable Key =====
+// Publishable Key 可以公開在前端；絕對不要貼入 sb_secret_、service_role 或資料庫密碼。
+const SUPABASE_URL = 'https://idzytzwderyipowgstpk.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_NIah7YM5yOhyqpf-vyF9Ew_ZEsQeiPB';
+const NAME_KEY='onion-test-nickname';
 $('name').value=localStorage.getItem(NAME_KEY)||'';
 let sb=null, polling=null, waitingTimer=null, pollingBusy=false, waitingBusy=false, active=false, requestPending=false, leaving=false, cancelling=false;
 let room=null, selected=0, roundPending=false, lastRoundKey=null;
@@ -193,7 +195,27 @@ async function keepWaiting(){
     }
   }catch(e){error(e)}finally{waitingBusy=false}
 }
-$('connect').addEventListener('click',async()=>{clearError();$('connect').disabled=true;try{const u=$('url').value.trim().replace(/\/$/,'');const k=$('key').value.trim();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(u))throw Error('請輸入正確的 Project URL');if(!k.startsWith('sb_publishable_'))throw Error('請使用 Publishable key，不可使用秘密金鑰');localStorage.setItem(URL_KEY,u);localStorage.setItem(KEY_KEY,k);sb=createClient(u,k,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});const {data:{session},error:e}=await sb.auth.getSession();if(e)throw e;if(!session){const login=await sb.auth.signInAnonymously();if(login.error)throw login.error;}$('setup').classList.add('hidden');$('lobby').classList.remove('hidden');await refresh();polling=setInterval(refresh,2000);}catch(e){error(e);$('connect').disabled=false;}});
+async function initializeGame(){
+  clearError();
+  try {
+    const u=SUPABASE_URL.trim().replace(/\/$/,'');
+    const k=SUPABASE_PUBLISHABLE_KEY.trim();
+    if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(u)) throw Error('遊戲的 Supabase 專案網址設定不正確，請通知老師。');
+    if(!k.startsWith('sb_publishable_')) throw Error('尚未設定 Publishable Key。請老師先在 index.html 的 SUPABASE_PUBLISHABLE_KEY 貼上公開金鑰，再更新 GitHub。');
+    sb=createClient(u,k,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+    const {data:{session},error:e}=await sb.auth.getSession();
+    if(e)throw e;
+    if(!session){const login=await sb.auth.signInAnonymously();if(login.error)throw login.error;}
+    $('setup').classList.add('hidden');
+    $('lobby').classList.remove('hidden');
+    await refresh();
+    polling=setInterval(refresh,2000);
+  }catch(e){
+    $('startupStatus').textContent='連線設定尚未完成，請聯絡老師。';
+    error(e);
+  }
+}
+initializeGame();
 $('start').addEventListener('click',async()=>{if(active||leaving||cancelling)return;clearError();$('lobbyStatus').classList.remove('closed');const nick=$('name').value.trim();if(!nick||[...nick].length>20){error('暱稱必須是 1～20 字');return;}localStorage.setItem(NAME_KEY,nick);active=true;$('start').disabled=true;$('cancel').hidden=false;await keepWaiting();if(active){waitingTimer=setInterval(keepWaiting,8000);}});
 $('cancel').addEventListener('click',async()=>{
   if(cancelling)return;
