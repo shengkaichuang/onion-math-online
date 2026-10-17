@@ -1,0 +1,126 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>洋蔥排列｜雙人線上對弈測試</title><style>
+:root{
+  --bg:#f4f6f8;--panel:#fff;--text:#1f2937;--muted:#6b7280;--border:#d7dee7;
+  --green:#16a34a;--green-bg:#ecfdf3;
+  --red:#dc2626;--red-bg:#fef2f2;
+  --blue:#2563eb;--blue-bg:#eff6ff;
+  --gray:#94a3b8;--gray-bg:#f8fafc;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;font-size:17px}
+body{min-width:320px}
+.app{width:min(1240px,calc(100% - 20px));margin:10px auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.title{font-size:22px;font-weight:900;white-space:nowrap}
+.controls{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+button{font:inherit}
+.ctrl{border:1px solid var(--border);background:#fff;color:var(--text);border-radius:9px;min-height:38px;padding:7px 11px;font-weight:750;cursor:pointer}
+.ctrl.active{border-color:#334155;background:#e2e8f0}
+.ctrl.primary{background:#111827;border-color:#111827;color:#fff}
+.ctrl.export{background:#0f766e;border-color:#0f766e;color:#fff}
+.ctrl:disabled{opacity:.45;cursor:not-allowed}
+
+.layout{display:grid;grid-template-columns:minmax(520px,1.25fr) minmax(500px,1.15fr);gap:10px;align-items:stretch}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:12px;min-width:0}
+.game{min-height:440px;display:flex;flex-direction:column;justify-content:flex-start}
+.history-panel{min-height:440px;display:flex;flex-direction:column}
+.history-title{font-size:17px;font-weight:900;margin-bottom:6px}
+.history{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px;overflow:auto;max-height:405px;padding-right:2px}
+.hist-card{border:1px solid var(--border);border-radius:10px;padding:6px 7px;background:#fff;min-height:66px}
+.hist-card.placeholder{border-style:dashed;opacity:.4}
+.hist-title{display:flex;justify-content:space-between;gap:6px;font-size:13px;font-weight:900;margin-bottom:3px}
+.hist-note{font-size:12px;color:var(--muted);margin-top:2px}
+
+.status{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.statusbox{border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fafbfc}
+.big{font-size:20px;font-weight:900}
+.small{font-size:13px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:7px 12px;font-size:13px;color:var(--muted);margin:4px 0 6px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.sw{width:15px;height:15px;border-radius:4px;background:#fff;border:3px solid}
+.sw.g{border-color:var(--green)} .sw.r{border-color:var(--red)} .sw.b{border-color:var(--blue)} .sw.x{border-color:#cbd5e1;background:#f8fafc}
+
+.board{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:14px;padding:8px 4px 4px;min-height:125px}
+.num{width:82px;height:82px;border-radius:16px;border:4px solid;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:950;user-select:none;background:#fff;transition:transform .16s ease,box-shadow .16s ease,background-color .16s ease,border-color .16s ease}
+.num.available{border-color:var(--green);background:var(--green-bg);color:#166534;cursor:pointer}
+.num.selected-a{border-color:var(--red);background:var(--red-bg);color:#991b1b;cursor:pointer;box-shadow:0 0 0 4px rgba(220,38,38,.12)}
+.num.selected-b{border-color:var(--blue);background:var(--blue-bg);color:#1e40af;box-shadow:0 0 0 4px rgba(37,99,235,.12);transform:translateY(-2px)}
+.num.blocked{border-color:#cbd5e1;background:var(--gray-bg);color:#64748b}
+.num.removed{border-color:#e5e7eb;background:#fafafa;color:#c0c5cc;opacity:.48;position:relative;overflow:hidden}.num.removed:after{content:"";position:absolute;left:6%;top:49%;width:88%;height:3px;background:#9ca3af;transform:rotate(-36deg);transform-origin:center;border-radius:3px}
+
+.actionbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin-top:4px}
+.seltext{font-size:14px;font-weight:800;min-width:160px;text-align:center}
+.result{display:none;margin-top:7px;padding:8px 10px;border-radius:9px;font-weight:900;text-align:center}
+.result.show{display:block}
+.result.win{background:#ecfdf5;border:1px solid #86efac}
+.result.lose{background:#fff1f2;border:1px solid #fda4af}
+.rules{font-size:13px;color:var(--muted);margin-top:5px;text-align:center}
+
+.snapshot{display:flex;flex-wrap:wrap;gap:4px}
+.token{width:31px;height:31px;border-radius:7px;border:3px solid;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;background:#fff;position:relative}
+.token.available{border-color:var(--green);background:var(--green-bg);color:#166534}
+.token.a-taken{border-color:var(--red);background:var(--red-bg);color:#991b1b}
+.token.b-taken{border-color:var(--blue);background:var(--blue-bg);color:#1e40af}
+.token.blocked{border-color:#cbd5e1;background:#f8fafc;color:#64748b}
+.token.removed{border-color:#e5e7eb;background:#fafafa;color:#b8bec6;opacity:.55;position:relative;overflow:hidden}.token.removed:after{content:"";position:absolute;left:5%;top:48%;width:90%;height:2px;background:#9ca3af;transform:rotate(-36deg);transform-origin:center;border-radius:2px}
+
+@media(max-width:980px){
+  .layout{grid-template-columns:1fr}
+  .game,.history-panel{min-height:auto}
+  .history{max-height:360px}
+}
+@media(max-width:560px){
+  .topbar{align-items:flex-start;flex-direction:column}
+  .controls{justify-content:flex-start}
+  .status{grid-template-columns:1fr}
+  .num{width:66px;height:66px;font-size:27px}
+}
+
+.setup{max-width:660px;margin:18px auto}.field{margin:12px 0}.field label{display:block;font-size:14px;font-weight:700;margin-bottom:5px}.field input{width:100%;font:inherit;font-size:16px;padding:10px;border:1px solid #9aaac0;border-radius:9px;min-height:44px}.notice{border:1px solid #bed3eb;background:#eff6ff;padding:12px;border-radius:9px;margin:10px 0;line-height:1.6}.err{border:1px solid #f4acac;background:#fff1f2;color:#991b1b;padding:10px;border-radius:8px;white-space:pre-wrap;margin:10px 0}.online-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.online-header strong{font-size:17px}.pill{padding:5px 9px;border-radius:20px;background:#e2e8f0;font-size:13px}.hist-message{font-size:14px;color:#526174;padding:12px}.num:disabled{cursor:default}.hidden{display:none!important}#waitPanel{max-width:640px;margin:10px auto}.smallhelp{font-size:13px;color:#607088;line-height:1.6}.ctrl{min-height:44px}.num:focus-visible,.ctrl:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+</style></head><body>
+<section class="panel setup" id="setup"><h1>洋蔥排列｜雙人線上對弈</h1><div class="notice">本版可讓兩位玩家自動配對並真正輪流拿數字。先測試走步與勝負；房主重開局與完整歷史紀錄尚未加入。</div><div class="field"><label for="url">Supabase Project URL</label><input id="url" type="url" spellcheck="false" autocomplete="off" value="https://idzytzwderyipowgstpk.supabase.co"></div><div class="field"><label for="key">Publishable key（sb_publishable_ 開頭）</label><input id="key" spellcheck="false" autocomplete="off" placeholder="貼上公開 Publishable key"></div><p class="smallhelp">只能使用 Publishable key，切勿貼入資料庫密碼、secret 或 service_role 金鑰。連線設定保存在本機瀏覽器。</p><button class="ctrl primary" id="connect">連線並準備登入</button></section>
+<section class="panel setup hidden" id="lobby"><h2>尋找對手</h2><div class="field"><label for="name">你的遊戲暱稱（1–20字）</label><input id="name" maxlength="20" autocomplete="nickname" placeholder="例如：小明"></div><div class="controls" style="justify-content:flex-start"><button class="ctrl primary" id="start">開始尋找對手</button><button class="ctrl" id="cancel" hidden>取消等待</button></div><div class="notice" id="lobbyStatus" role="status">已連線，請開始尋找對手。</div></section>
+<div class="app hidden" id="game"><div class="topbar"><div class="title">洋蔥排列｜線上對弈</div><div class="pill" id="myRole"></div></div><div class="online-header"><strong id="players"></strong><span class="pill" id="conn">每 2 秒更新棋盤</span></div>
+<div class="layout"><main class="panel game"><div><div class="status"><div class="statusbox"><div class="big" id="turn"></div><div class="small" id="starter"></div></div><div class="statusbox"><div id="position" style="font-weight:850;font-size:14px">目前可拿數字</div><div class="small" id="visible"></div></div></div><div class="legend"><span><i class="sw g"></i>可拿：綠框</span><span><i class="sw r"></i>玩家 A 選取：紅框</span><span><i class="sw b"></i>玩家 B 選取：藍框</span><span><i class="sw x"></i>被遮住／已拿走</span></div><div class="board" id="board"></div></div>
+<div><div class="actionbar"><button class="ctrl primary" id="take" disabled>確認拿走</button><button class="ctrl" id="clear" disabled>取消選取</button><div class="seltext" id="seltext">尚未選取</div></div><div class="result" id="result" role="status" aria-live="polite"></div><div class="rules">每回合可拿走任意非空子集的目前可見數。拿走後立即重新判定可見數；拿到最後一個數者獲勝。</div><div class="smallhelp">測試版目前固定 n=5。重新整理會以同一匿名身份恢復對局；重開新局功能待下一階段加入。</div></div></main>
+<aside class="panel history-panel"><div class="history-title">對局資訊</div><div id="history" class="hist-message">本階段以資料庫正式棋盤為準。完整走步歷史及房主重新開局功能，將在雙手機走步驗證通過後加入。</div><div id="gameInfo" class="hist-message"></div></aside></div></div>
+<div id="error" class="err setup hidden" role="alert"></div>
+<script type="module">
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const $=id=>document.getElementById(id);
+const URL_KEY='onion-test-url', KEY_KEY='onion-test-publishable', NAME_KEY='onion-test-nickname';
+$('url').value=localStorage.getItem(URL_KEY)||$('url').value;
+$('key').value=localStorage.getItem(KEY_KEY)||'';
+$('name').value=localStorage.getItem(NAME_KEY)||'';
+let sb=null, polling=null, waitingTimer=null, pollingBusy=false, waitingBusy=false, active=false, requestPending=false;
+let room=null, selected=0;
+function error(e){$('error').textContent='發生問題：'+(e?.message||String(e));$('error').classList.remove('hidden');}
+function clearError(){$('error').textContent='';$('error').classList.add('hidden');}
+async function rpc(n,args={}){const {data,error:e}=await sb.rpc(n,args);if(e)throw e;return data;}
+function resetTimers(){clearInterval(polling);clearInterval(waitingTimer);polling=null;waitingTimer=null;}
+function vals(mask){return room.permutation.filter((_,i)=>!!(mask&(1<<i)));}
+// 直接沿用雙人同機版的洋蔥排列可見數判斷。
+function visMask(mask){let max=-Infinity,out=0;for(let i=0;i<room.n;i++){if(!(mask&(1<<i)))continue;if(room.permutation[i]>max){max=room.permutation[i];out|=1<<i}}return out;}
+function roleName(role){return role==='A'?room.name_a:room.name_b;}
+function render(){if(!room)return;const v=visMask(room.alive_mask), myTurn=room.current_turn===room.role&&room.game_status==='playing';
+$('players').textContent=`${room.name_a}（A） vs ${room.name_b}（B）`;
+$('myRole').textContent=`你是玩家 ${room.role}${room.role==='A'?'（房主）':''}`;
+$('board').replaceChildren();
+for(let i=0;i<room.n;i++){const bit=1<<i,b=document.createElement('button');b.type='button';b.className='num';b.textContent=room.permutation[i];const alive=!!(room.alive_mask&bit),available=!!(v&bit),picked=!!(selected&bit);if(!alive)b.classList.add('removed');else if(picked)b.classList.add(room.role==='A'?'selected-a':'selected-b');else if(available)b.classList.add('available');else b.classList.add('blocked');b.disabled=!alive||!available||!myTurn||requestPending;b.setAttribute('aria-label',`數字 ${room.permutation[i]}`);if(!b.disabled)b.addEventListener('click',()=>{selected^=bit;render()});$('board').appendChild(b);}
+$('turn').textContent=room.game_status==='finished'?'本局結束':myTurn?'輪到你拿數字':`等待 ${roleName(room.current_turn)}（${room.current_turn}）走步`;
+$('starter').textContent=`第 ${room.round_number} 局｜目前 n=${room.n}`;
+$('visible').textContent=room.game_status==='finished'?'':'目前可拿：'+(vals(v).join('、')||'無');
+$('position').textContent=room.game_status==='finished'?'本局已結束':'目前可拿數字';
+$('seltext').textContent=selected?'已選：'+vals(selected).join('、'):'尚未選取';
+$('take').disabled=!myTurn||!selected||!!(selected&~v)||requestPending;$('clear').disabled=!selected||requestPending;
+const done=room.game_status==='finished';$('result').className=done?'result show '+(room.winner===room.role?'win':'lose'):'result';$('result').textContent=done?`${roleName(room.winner)}（${room.winner}）獲勝！`:'';
+$('gameInfo').textContent=`剩餘數字：${vals(room.alive_mask).join('、')||'無'}｜棋盤版本：${room.version}`;}
+function showRoom(r){if(r?.status!=='matched')return;const changed=!room||room.room_id!==r.room_id||room.version!==r.version||room.round_number!==r.round_number;if(changed)selected=0;room=r;active=false;$('setup').classList.add('hidden');$('lobby').classList.add('hidden');$('game').classList.remove('hidden');render();}
+async function refresh(){if(!sb||pollingBusy)return;pollingBusy=true;try{const r=await rpc('match_status');if(r?.status==='matched'){showRoom(r);if(waitingTimer){clearInterval(waitingTimer);waitingTimer=null;}}else if(active){$('lobbyStatus').textContent=r?.status==='waiting'?'正在等待另一位玩家加入…':'等待資格更新中…';}else if(!room){$('lobbyStatus').textContent='請輸入暱稱並開始尋找對手。';}}catch(e){error(e)}finally{pollingBusy=false}}
+async function keepWaiting(){if(!active||waitingBusy)return;waitingBusy=true;try{const r=await rpc('find_match',{p_nickname:$('name').value.trim()});if(r?.status==='matched'){active=false;const detail=await rpc('match_status');showRoom(detail);}else{$('lobbyStatus').textContent='正在等待另一位玩家加入…';}}catch(e){error(e)}finally{waitingBusy=false}}
+$('connect').addEventListener('click',async()=>{clearError();$('connect').disabled=true;try{const u=$('url').value.trim().replace(/\/$/,'');const k=$('key').value.trim();if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(u))throw Error('請輸入正確的 Project URL');if(!k.startsWith('sb_publishable_'))throw Error('請使用 Publishable key，不可使用秘密金鑰');localStorage.setItem(URL_KEY,u);localStorage.setItem(KEY_KEY,k);sb=createClient(u,k,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});const {data:{session},error:e}=await sb.auth.getSession();if(e)throw e;if(!session){const login=await sb.auth.signInAnonymously();if(login.error)throw login.error;}$('setup').classList.add('hidden');$('lobby').classList.remove('hidden');await refresh();polling=setInterval(refresh,2000);}catch(e){error(e);$('connect').disabled=false;}});
+$('start').addEventListener('click',async()=>{clearError();const nick=$('name').value.trim();if(!nick||[...nick].length>20){error('暱稱必須是 1～20 字');return;}localStorage.setItem(NAME_KEY,nick);active=true;$('start').disabled=true;$('cancel').hidden=false;await keepWaiting();if(active){waitingTimer=setInterval(keepWaiting,8000);}});
+$('cancel').addEventListener('click',async()=>{clearError();active=false;clearInterval(waitingTimer);waitingTimer=null;$('cancel').disabled=true;try{await rpc('cancel_wait');$('lobbyStatus').textContent='已取消等待。';$('start').disabled=false;$('cancel').hidden=true;await refresh();}catch(e){error(e)}finally{$('cancel').disabled=false}});
+$('take').addEventListener('click',async()=>{if(!room||!selected||requestPending)return;clearError();requestPending=true;render();try{const response=await rpc('submit_move',{p_room_id:room.room_id,p_move_mask:selected,p_expected_version:room.version});if(response?.success){await refresh();}else throw Error('走步未被接受');}catch(e){error(e);await refresh();}finally{requestPending=false;render();}});
+$('clear').addEventListener('click',()=>{selected=0;render()});
+</script></body></html>
